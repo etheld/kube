@@ -18,5 +18,11 @@ download-terraform:
 	unzip terraform.zip
 	mv terraform binary/
 
+token:
+	echo "etcd_discovery_url=\"`curl https://discovery.etcd.io/new?size=3`\"" > discovery.tf
+
 apply:
 	./binary/terraform apply
+
+destroy:
+	./binary/terraform destroy

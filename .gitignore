@@ -1,2 +1,7 @@
 terraform.tfvars
 .gitignore
+binary/
+terraform.tfstate
+terraform.tfstate.backup
+*.pem
+*.csr

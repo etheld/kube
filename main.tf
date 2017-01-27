@@ -1,5 +1,5 @@
 data "template_file" "master" {
-  template = "${file("conf/master.conf")}"
+  template = "${file("conf/master.yml")}"
 
   vars {
     etcd_discovery_url    = "${var.etcd_discovery_url}"
