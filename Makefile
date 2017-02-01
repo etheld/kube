@@ -1,3 +1,9 @@
+ifeq (${OS},)
+    OS         = $(shell uname | tr '[A-Z]' '[a-z]')
+endif
+
+TERRAFORM_VERSION=0.8.5
+
 create-ca:
 	./binary/cfssl gencert -initca config/ca-csr.json | ./binary/cfssl_json -bare secrets/ca
 
@@ -9,14 +15,19 @@ create-kube-api:
 		-profile=server \
 		config/kube-apiserver-server-csr.json | ./binary/cfssl_json -bare kube-apiserver
 
-ssl: create-ca create-kube-api
+recreate-binary:
+	rm -rf binary
+	mkdir binary
+
+download: recreate-binary download-cfssl download-terraform
+
 
 download-cfssl:
-	curl -o binary/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
-	curl -o binary/cfssl_json https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+	curl -o binary/cfssl https://pkg.cfssl.org/R1.2/cfssl_${OS}-amd64
+	curl -o binary/cfssl_json https://pkg.cfssl.org/R1.2/cfssljson_${OS}-amd64
 
 download-terraform:
-	curl -o terraform.zip https://releases.hashicorp.com/terraform/0.8.5/terraform_0.8.5_linux_amd64.zip
+	curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${OS}_amd64.zip
 	unzip terraform.zip
 	mv terraform binary/
 
