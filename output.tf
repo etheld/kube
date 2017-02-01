@@ -1,5 +1,5 @@
 output "master_ipv4" {
-  value = "${digitalocean_droplet.master.ipv4_address}"
+  value = "${digitalocean_droplet.k8s_master.ipv4_address}"
 }
 
 /*output "host_0_private" {
@@ -14,8 +14,8 @@ output "host_public_ips" {
   value = "${join(" ",digitalocean_droplet.node.*.ipv4_address)}"
 }*/
 
-output "hosts" {
+/*output "hosts" {
   value = <<HOSTS
 ${digitalocean_droplet.master.ipv4_address} master.local
 HOSTS
-}
+}*/

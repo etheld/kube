@@ -1,13 +1,15 @@
 create-ca:
-	./binary/cfssl gencert -initca config/ca-csr.json | ./binary/cfssljson -bare ca
+	./binary/cfssl gencert -initca config/ca-csr.json | ./binary/cfssl_json -bare secrets/ca
 
-create-kube: create-ca
+create-kube-api:
 	./binary/cfssl gencert \
-		-ca=ca.pem \
-		-ca-key=ca-key.pem \
+		-ca=secrets/ca.pem \
+		-ca-key=secrets/ca-key.pem \
 		-config=config/ca-config.json \
 		-profile=server \
-		config/kube-apiserver-server-csr.json | ./binary/cfssljson -bare kube-apiserver-server
+		config/kube-apiserver-server-csr.json | ./binary/cfssl_json -bare kube-apiserver
+
+ssl: create-ca create-kube-api
 
 download-cfssl:
 	curl -o binary/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
@@ -18,11 +20,24 @@ download-terraform:
 	unzip terraform.zip
 	mv terraform binary/
 
-token:
-	echo "etcd_discovery_url=\"`curl https://discovery.etcd.io/new?size=3`\"" > discovery.tf
+clean-binary:
+	rm -rf binary
+mkdir-binary:
+	mkdir binary
+download: clean-binary mkdir-binary download-terraform download-cfssl
 
 apply:
 	./binary/terraform apply
 
 destroy:
-	./binary/terraform destroy
+	./binary/terraform destroy -force
+
+token:
+	grep -v etcd terraform.tfvars > terraform.tfvars_new
+	mv terraform.tfvars_new terraform.tfvars
+	echo "etcd_discovery_url=\"`curl https://discovery.etcd.io/new?size=1`\"" >> terraform.tfvars
+
+ssh:
+	ssh -o StrictHostKeyChecking=no core@$(shell ./binary/terraform output | awk '{print $$3}' )
+
+again: destroy token apply ssh

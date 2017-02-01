@@ -1,9 +1,7 @@
 {
-  "CN": "*.kubestack.io",
+"CN": "${SERVERNAME}",
   "hosts": [
-    "127.0.0.1",
-    "*.kubestack.io",
-    "*.c.kubestack.internal"
+    ""
   ],
   "key": {
     "algo": "rsa",
